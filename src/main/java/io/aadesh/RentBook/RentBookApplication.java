@@ -22,10 +22,10 @@ public class RentBookApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		calculate.addTenant(4500,"2 nd floor",2);
-		calculate.addTenant(5200,"Gaur",3);
-
-		calculate.addTenant(0,"Shirish",1);
+//		calculate.addTenant(4500,"2 nd floor",2);
+//		calculate.addTenant(5200,"Gaur",3);
+//
+//		calculate.addTenant(0,"Shirish",1);
 
 //		calculate.createElectricityBillForFirstTime(6332.8,6234,2100.4,2073,2,"December","2022",8);
 //		calculate.createElectricityBillForFirstTime(3473,3436,2100.4,2073,3,"December","2022",8);
@@ -33,7 +33,8 @@ public class RentBookApplication implements CommandLineRunner {
 
 
 		//displayResults.getTenantAllBills(2).stream().forEach(System.out::println);
-		displayResults.getLatestBillForAllTenants().forEach(bill->System.out.println(bill+"\n"));
+		//displayResults.getLatestBillForAllTenants().forEach(bill->System.out.println(bill+"\n"));
+
 
 	}
 }

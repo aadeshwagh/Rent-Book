@@ -96,6 +96,9 @@ public class Calculate {
             throw new RuntimeException();
 
         }
+        if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
+            //todo:: Error handling for already existed data
+        }
         //tenantRepo.delete(tenant0.get());
         Tenant tenant = tenant0.get();
 
@@ -133,7 +136,15 @@ public class Calculate {
     }
 
     public void addTenant(int rent,String name, int floor){
+        Optional<Tenant> tenant0 = tenantRepo.findById(floor);
 
+        if(tenant0.isEmpty()){
+            //Todo::send to add new tenants
+            System.out.println("Error");
+
+            throw new RuntimeException();
+
+        }
         Tenant tenant = new Tenant();
 
         tenant.setRent(rent);
