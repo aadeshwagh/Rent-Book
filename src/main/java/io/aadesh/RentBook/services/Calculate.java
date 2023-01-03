@@ -13,18 +13,13 @@ import java.util.Optional;
 @Service
 public class Calculate {
 
-    private List<String> months;
-
-    Calculate(){
-        months =  List.of("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
-    }
     @Autowired
     private TenantRepo tenantRepo;
     @Autowired
     private ElectricityBillRepo electricityBillRepo;
 
 
-    public void createElectricityBill(double currentTotalRoomUnits,double currentTotalBorUnits, int floor, String month, String year, int rsPerUnit){
+    public ElectricityBill createElectricityBill(double currentTotalRoomUnits,double currentTotalBorUnits, int floor, String month, String year, int rsPerUnit){
         Optional<Tenant> tenant0 = tenantRepo.findById(floor);
 
         if(tenant0.isEmpty()){
@@ -34,25 +29,23 @@ public class Calculate {
             throw new RuntimeException();
 
         }
+        if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
+            //todo:: Error handling for already existed data
+            throw new RuntimeException("bill for that user already exists");
+        }
         //tenantRepo.delete(tenant0.get());
         Tenant tenant = tenant0.get();
-            String previousMonthYear = getPreviousMonthYear(month,year);
-            Optional<ElectricityBill> previousElectricityBill =  electricityBillRepo.findById(new ElectricityBillId(floor,previousMonthYear));
-            if(previousElectricityBill.isEmpty()){
-                //Todo:: do error handling
-                throw new RuntimeException();
-            }
-//            Optional<Tenant> tenant = previousElectricityBill.get().getTenants().stream().filter(tenant1 -> tenant1.getFloor() == floor )
-//                .findFirst();
+        List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getTenant().getFloor() == floor).toList();
+        if(electricityBills.isEmpty()){
+            //Todo::Handle no previous data
+            throw new RuntimeException();
+        }
+        ElectricityBill previousElectricityBill = electricityBills.get(electricityBills.size()-1);
 
 
-//            if(tenant.isEmpty()){
-//                //Todo:: do error handling
-//                throw new RuntimeException();
-//            }
 
-            double previousTotalRoomUnits = previousElectricityBill.get().getCurrentTotalRoomUnits();
-            double previousTotalBorUnits = previousElectricityBill.get().getCurrentTotalBorUnits();
+            double previousTotalRoomUnits = previousElectricityBill.getCurrentTotalRoomUnits();
+            double previousTotalBorUnits = previousElectricityBill.getCurrentTotalBorUnits();
 
             double totalRoomUnits = currentTotalRoomUnits - previousTotalRoomUnits;
             double totalRoomAmount = totalRoomUnits * rsPerUnit;
@@ -66,23 +59,24 @@ public class Calculate {
             electricityBill.setYear(year);
             electricityBill.setId(new ElectricityBillId(floor,month+"-"+year));
             electricityBill.setPerRs(rsPerUnit);
-            electricityBill.setRoomBorUnits(roomBorUnits);
-            electricityBill.setRoomBorAmount(totalBorAmount);
-            electricityBill.setRoomUnits(totalRoomUnits);
+            electricityBill.setRoomBorUnits(Math.round(roomBorUnits * 10.0) / 10.0);
+            electricityBill.setRoomBorAmount(Math.round(totalBorAmount * 10.0) / 10.0);
+            electricityBill.setRoomUnits((Math.round(totalRoomUnits * 10.0) / 10.0));
 
-            electricityBill.setPreviousTotalBorUnits(previousTotalBorUnits);
-            electricityBill.setCurrentTotalBorUnits(currentTotalBorUnits);
-            electricityBill.setPreviousTotalRoomUnits(previousTotalRoomUnits);
-            electricityBill.setCurrentTotalRoomUnits(currentTotalRoomUnits);
+            electricityBill.setPreviousTotalBorUnits((Math.round(previousTotalBorUnits * 10.0) / 10.0));
+            electricityBill.setCurrentTotalBorUnits((Math.round(currentTotalBorUnits * 10.0) / 10.0));
+            electricityBill.setPreviousTotalRoomUnits((Math.round(previousTotalRoomUnits * 10.0) / 10.0));
+            electricityBill.setCurrentTotalRoomUnits((Math.round(currentTotalRoomUnits * 10.0) / 10.0));
 
 
-            electricityBill.setRoomBillAmount(totalRoomAmount);
+            electricityBill.setRoomBillAmount((Math.round(totalRoomAmount * 10.0) / 10.0));
             electricityBill.setTotalBill(totalCalculatedAmount);
-            electricityBill.setGrandTotal(totalCalculatedAmount+tenant.getRent());
+            electricityBill.setGrandTotal(totalCalculatedAmount);
 
             electricityBill.setTenant(tenant);
 
             electricityBillRepo.save(electricityBill);
+            return electricityBill;
 
     }
 
@@ -98,6 +92,7 @@ public class Calculate {
         }
         if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
             //todo:: Error handling for already existed data
+            throw new RuntimeException("bill for that user already exists");
         }
         //tenantRepo.delete(tenant0.get());
         Tenant tenant = tenant0.get();
@@ -115,16 +110,18 @@ public class Calculate {
         electricityBill.setYear(year);
         electricityBill.setId(new ElectricityBillId(floor,month+"-"+year));
         electricityBill.setPerRs(rsPerUnit);
-        electricityBill.setRoomBorUnits(roomBorUnits);
+        electricityBill.setRoomBorUnits(Math.round(roomBorUnits * 10.0) / 10.0);
 
-        electricityBill.setPreviousTotalBorUnits(previousTotalBorUnits);
-        electricityBill.setCurrentTotalBorUnits(currentTotalBorUnits);
-        electricityBill.setPreviousTotalRoomUnits(previousTotalRoomUnits);
-        electricityBill.setCurrentTotalRoomUnits(currentTotalRoomUnits);
-        electricityBill.setRoomBorAmount(totalBorAmount);
+        electricityBill.setPreviousTotalBorUnits((Math.round(previousTotalBorUnits * 10.0) / 10.0));
+        electricityBill.setCurrentTotalBorUnits((Math.round(currentTotalBorUnits * 10.0) / 10.0));
+        electricityBill.setPreviousTotalRoomUnits((Math.round(previousTotalRoomUnits * 10.0) / 10.0));
+        electricityBill.setCurrentTotalRoomUnits((Math.round(currentTotalRoomUnits * 10.0) / 10.0));
 
-        electricityBill.setRoomUnits(totalRoomUnits);
-        electricityBill.setRoomBillAmount(totalRoomAmount);
+
+        electricityBill.setRoomBorAmount(Math.round(totalBorAmount * 10.0) / 10.0);
+
+        electricityBill.setRoomUnits(Math.round(totalRoomUnits * 10.0) / 10.0);
+        electricityBill.setRoomBillAmount(Math.round(totalRoomAmount * 10.0) / 10.0);
         electricityBill.setTotalBill(totalCalculatedAmount);
         electricityBill.setGrandTotal(totalCalculatedAmount+tenant.getRent());
 
@@ -138,7 +135,7 @@ public class Calculate {
     public void addTenant(int rent,String name, int floor){
         Optional<Tenant> tenant0 = tenantRepo.findById(floor);
 
-        if(tenant0.isEmpty()){
+        if(tenant0.isPresent()){
             //Todo::send to add new tenants
             System.out.println("Error");
 
@@ -154,12 +151,26 @@ public class Calculate {
 
     }
 
+    public void deleteTenant(int floor){
+        Optional<Tenant> tenant0 = tenantRepo.findById(floor);
 
+        if(tenant0.isEmpty()){
+            //Todo::send to add new tenants
+            System.out.println("Not exist");
 
-    private String getPreviousMonthYear(String month,String year){
-       int prevIndex =  (months.indexOf(month) - 1) % months.size() ;
-       String prevMonth = months.get(prevIndex);
+            throw new RuntimeException();
 
-       return  prevMonth+"-"+year;
+        }
+        tenantRepo.delete(tenant0.get());
     }
+
+    public List<Integer> getFloors(){
+        List<Integer> list = tenantRepo.findAll().stream().map(Tenant::getFloor).filter(floor -> floor >1).toList();
+        if(list.isEmpty()){
+            throw new RuntimeException("No tenants");
+        }
+        return list;
+    }
+
+
 }
