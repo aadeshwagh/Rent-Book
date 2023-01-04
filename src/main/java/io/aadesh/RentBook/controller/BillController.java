@@ -24,7 +24,7 @@ public class BillController {
     private final List<String> months;
 
     @Autowired
-    private BillService calculate;
+    private BillService billService;
 
     @Autowired
     private TenantService tenantService;
@@ -69,7 +69,7 @@ public class BillController {
             double currentRoomUnits = Double.parseDouble(Objects.requireNonNull(formData.getFirst("currentRoomUnits")));
             double currentBorUnits = Double.parseDouble(Objects.requireNonNull(formData.getFirst("currentBorUnits")));
             int rsPerUnit = Integer.parseInt(Objects.requireNonNull(formData.getFirst("rsPerUnit")));
-            ElectricityBill bill = calculate.createElectricityBill(currentRoomUnits,currentBorUnits,floor,month,year,rsPerUnit);
+            ElectricityBill bill = billService.createElectricityBill(currentRoomUnits,currentBorUnits,floor,month,year,rsPerUnit);
             model.addAttribute("bill",bill);
 
 
@@ -97,23 +97,27 @@ public class BillController {
 
     @GetMapping("/editBillPage/{billId}/{tenantId}")
     public String getEditBillPage(@PathVariable String billId, @PathVariable int tenantId,Model model){
-        ElectricityBill bill  = calculate.getBillById(new ElectricityBillId(tenantId,billId));
-        YearMonth currentMonth = YearMonth.now();
-        YearMonth lastMonth = currentMonth.minusMonths(1);
+        try {
+            ElectricityBill bill = billService.getBillById(new ElectricityBillId(tenantId, billId));
+            YearMonth currentMonth = YearMonth.now();
+            YearMonth lastMonth = currentMonth.minusMonths(1);
 
-        int year = lastMonth.getYear();
-        String prevMonth = lastMonth.getMonth().name();
-        String rentMonth = prevMonth.charAt(0)+prevMonth.substring(1).toLowerCase();
+            int year = lastMonth.getYear();
+            String prevMonth = lastMonth.getMonth().name();
+            String rentMonth = prevMonth.charAt(0) + prevMonth.substring(1).toLowerCase();
 
-        ArrayList<String> years = new ArrayList<>();
-        for(int i = year-5 ; i<=year+5 ;i++)
-            years.add(""+i);
+            ArrayList<String> years = new ArrayList<>();
+            for (int i = year - 5; i <= year + 5; i++)
+                years.add("" + i);
 
-        model.addAttribute("floors",tenantService.getAllActiveTenants().stream().map(Tenant::getFloor).filter(floor -> floor >1));
-        model.addAttribute("months",months);
-        model.addAttribute("years",years);
+            model.addAttribute("floors", tenantService.getAllActiveTenants().stream().map(Tenant::getFloor).filter(floor -> floor > 1));
+            model.addAttribute("months", months);
+            model.addAttribute("years", years);
 
-        model.addAttribute("bill",bill);
+            model.addAttribute("bill", bill);
+        }catch (Exception e){
+            model.addAttribute("exception",e.getMessage());
+        }
         return "edit-bill";
     }
 
@@ -126,7 +130,7 @@ public class BillController {
             double currentRoomUnits = Double.parseDouble(Objects.requireNonNull(formData.getFirst("currentRoomUnits")));
             double currentBorUnits = Double.parseDouble(Objects.requireNonNull(formData.getFirst("currentBorUnits")));
             int rsPerUnit = Integer.parseInt(Objects.requireNonNull(formData.getFirst("rsPerUnit")));
-            calculate.editBill(currentRoomUnits,currentBorUnits,floor,month,year,rsPerUnit);
+            billService.editBill(currentRoomUnits,currentBorUnits,floor,month,year,rsPerUnit);
         }catch (Exception e){
             model.addAttribute("exception",e.getMessage());
         }

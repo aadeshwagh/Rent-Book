@@ -27,7 +27,12 @@ public class TenantController {
 
     @GetMapping("/activateTenant/{floor}")
     public String activateTenant(@PathVariable int floor, Model model){
-        tenantService.activateTenant(floor);
+        try{
+            tenantService.activateTenant(floor);
+        }catch (Exception e){
+            model.addAttribute("exception",e.getMessage());
+        }
+
         return getTenants(model);
     }
 

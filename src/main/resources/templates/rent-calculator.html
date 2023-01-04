@@ -71,7 +71,9 @@
 </script>
     <div th:if="${bill}" th:insert = "bill  :: bill"  ></div>
     <div th:if="${exception}">
-        <h5 th:text="${exception}"> Exception Occurred</h5>
+        <br>
+        <h5> Exception Occurred :</h5>
+        <p th:text="${exception}"></p>
     </div>
     </div>
 </body>

@@ -8,7 +8,12 @@
     <title>Bill Calculator</title>
 </head>
 <body>
-<div class="container mt-5 mb-5" style="width: 60%;">
+<div th:if="${exception}">
+    <br>
+    <h5> Exception Occurred :</h5>
+    <p th:text="${exception}"></p>
+</div>
+<div th:unless = "${exception}" class="container mt-5 mb-5" style="width: 60%;">
     <div th:insert = "nav-bar  :: nav-bar" style="margin-bottom : 20px;" ></div>
     <form th:attr = "action = @{/editBill}" method="POST">
         <div class="col">

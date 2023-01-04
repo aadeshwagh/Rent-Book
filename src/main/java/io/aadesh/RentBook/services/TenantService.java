@@ -1,6 +1,7 @@
 package io.aadesh.RentBook.services;
 
 import io.aadesh.RentBook.entities.Tenant;
+import io.aadesh.RentBook.exceptions.TenantNotFindException;
 import io.aadesh.RentBook.repos.TenantRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,7 +76,7 @@ public class TenantService {
         return tenant0.get();
     }
 
-    public void activateTenant(int floor) {
+    public void activateTenant(int floor) throws TenantNotFindException {
         Optional<Tenant> tenant0 = tenantRepo.findById(floor);
 
         if(tenant0.isPresent()){
@@ -90,7 +91,7 @@ public class TenantService {
             }
 
         }else {
-            throw new RuntimeException("You need to add the tenant");
+            throw new TenantNotFindException();
         }
 
     }

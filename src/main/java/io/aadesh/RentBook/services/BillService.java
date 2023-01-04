@@ -1,6 +1,8 @@
 package io.aadesh.RentBook.services;
 
 import io.aadesh.RentBook.entities.*;
+import io.aadesh.RentBook.exceptions.BillAlreadyExistsException;
+import io.aadesh.RentBook.exceptions.BillNotFoundException;
 import io.aadesh.RentBook.repos.ElectricityBillRepo;
 import io.aadesh.RentBook.repos.TenantRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,17 +21,17 @@ public class BillService {
     private ElectricityBillRepo electricityBillRepo;
 
 
-    public ElectricityBill createElectricityBill(double currentTotalRoomUnits,double currentTotalBorUnits, int floor, String month, String year, int rsPerUnit){
+    public ElectricityBill createElectricityBill(double currentTotalRoomUnits,double currentTotalBorUnits, int floor, String month, String year, int rsPerUnit) throws BillAlreadyExistsException {
       Tenant tenant = tenantService.getTenantByFloor(floor);
         if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
             //todo:: Error handling for already existed data
-            throw new RuntimeException("bill for that user already exists");
+            throw new BillAlreadyExistsException();
         }
         //tenantRepo.delete(tenant0.get());
         List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getId().getTenantId() == floor).toList();
         if(electricityBills.isEmpty()){
             //Todo::Handle no previous data
-            throw new RuntimeException();
+            throw new RuntimeException("No previous bills found for tenant");
         }
         ElectricityBill previousElectricityBill = electricityBills.get(electricityBills.size()-1);
 
@@ -70,11 +72,11 @@ public class BillService {
 
     }
 
-    public void createElectricityBillForFirstTime(double currentTotalRoomUnits, double previousTotalRoomUnits ,double currentTotalBorUnits,double previousTotalBorUnits, int floor, String month, String year, int rsPerUnit){
+    public void createElectricityBillForFirstTime(double currentTotalRoomUnits, double previousTotalRoomUnits ,double currentTotalBorUnits,double previousTotalBorUnits, int floor, String month, String year, int rsPerUnit) throws BillAlreadyExistsException {
        Tenant tenant = tenantService.getTenantByFloor(floor);
         if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
             //todo:: Error handling for already existed data
-            throw new RuntimeException("bill for that user already exists");
+            throw new BillAlreadyExistsException();
         }
         //tenantRepo.delete(tenant0.get());
 
@@ -113,29 +115,29 @@ public class BillService {
     }
 
 
-    public void deleteBill(ElectricityBillId electricityBillId) {
+    public void deleteBill(ElectricityBillId electricityBillId) throws BillNotFoundException {
         Optional<ElectricityBill> bill0 = electricityBillRepo.findById(electricityBillId);
         if(bill0.isEmpty()){
-            throw new RuntimeException("Bill not found");
+            throw new BillNotFoundException();
         }
 
         electricityBillRepo.delete(bill0.get());
     }
 
-    public ElectricityBill getBillById(ElectricityBillId electricityBillId) {
+    public ElectricityBill getBillById(ElectricityBillId electricityBillId) throws BillNotFoundException {
         Optional<ElectricityBill> bill0 = electricityBillRepo.findById(electricityBillId);
         if(bill0.isEmpty()){
-            throw new RuntimeException("Bill not found");
+            throw new BillNotFoundException();
         }
         return bill0.get();
     }
 
-    public void editBill(double currentTotalRoomUnits,double currentTotalBorUnits, int floor, String month, String year, int rsPerUnit) {
+    public void editBill(double currentTotalRoomUnits,double currentTotalBorUnits, int floor, String month, String year, int rsPerUnit) throws BillNotFoundException {
         Tenant tenant = tenantService.getTenantByFloor(floor);
         Optional<ElectricityBill> bill = electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year));
         if(bill.isEmpty()){
             //todo:: Error handling for does not exist
-            throw new RuntimeException("Bill Does not exists");
+            throw new BillNotFoundException();
         }
         //tenantRepo.delete(tenant0.get());
 
