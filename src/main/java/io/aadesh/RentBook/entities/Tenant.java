@@ -1,8 +1,5 @@
 package io.aadesh.RentBook.entities;
-
 import jakarta.persistence.*;
-
-import java.util.List;
 
 @Entity
 public class Tenant {

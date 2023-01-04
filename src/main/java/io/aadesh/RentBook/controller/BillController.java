@@ -90,7 +90,6 @@ public class BillController {
     @GetMapping("/getBillsByFloor/{floor}")
     public String getBillsByFloor(@PathVariable int floor, Model model){
         ArrayList<ElectricityBill> bills = new ArrayList<>(displayResultsService.getTenantAllBills(floor));
-        Collections.reverse(bills);
         model.addAttribute("bills", bills);
         return "bills.html";
     }

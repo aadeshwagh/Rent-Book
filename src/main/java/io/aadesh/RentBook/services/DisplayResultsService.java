@@ -25,7 +25,7 @@ public class DisplayResultsService {
         Optional<ElectricityBill> bill = electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year));
 
         if(bill.isEmpty()){
-            //Todo: do error handling
+            
         }
         return bill.get();
 
@@ -37,7 +37,7 @@ public class DisplayResultsService {
     public List<ElectricityBill> getTenantLastNBills(int floor,int n){
         List<ElectricityBill> all = electricityBillRepo.findAll();
         if(n> all.size()){
-            //todo error handling
+            
         }
         return  all.stream().filter(bill->bill.getId().getTenantId()==floor).limit(n).toList();
 
@@ -50,11 +50,11 @@ public class DisplayResultsService {
     public ElectricityBill getTenantsLatestBill(int floor){
         List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getId().getTenantId() == floor).toList();
         if(electricityBills.isEmpty()){
-            //Todo::Handle
+            
             System.out.println("This one empty");
             return null;
         }else{
-            return electricityBills.get(electricityBills.size()-1) ;
+            return electricityBills.get(0) ;
         }
 
     }

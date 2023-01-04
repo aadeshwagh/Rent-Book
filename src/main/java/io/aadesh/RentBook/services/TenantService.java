@@ -5,7 +5,6 @@ import io.aadesh.RentBook.exceptions.TenantNotFindException;
 import io.aadesh.RentBook.repos.TenantRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +43,7 @@ public class TenantService {
         Optional<Tenant> tenant0 = tenantRepo.findById(floor);
 
         if(tenant0.isEmpty() || !tenant0.get().isActive()){
-            //Todo::send to add new tenants
+            
             System.out.println("Not exist/ Deactivated");
 
             throw new RuntimeException();
@@ -67,7 +66,7 @@ public class TenantService {
         Optional<Tenant> tenant0 = tenantRepo.findById(floor);
 
         if(tenant0.isEmpty() || !tenant0.get().isActive()){
-            //Todo::send to add new tenants
+            
             System.out.println("Tenant Does Not Exists");
 
             throw new RuntimeException();
