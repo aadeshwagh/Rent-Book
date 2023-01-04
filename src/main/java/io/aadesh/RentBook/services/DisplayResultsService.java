@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class DisplayResults {
+public class DisplayResultsService {
 
     @Autowired
     ElectricityBillRepo electricityBillRepo;
@@ -31,7 +31,7 @@ public class DisplayResults {
 
     }
     public List<ElectricityBill> getTenantAllBills(int floor){
-        return  electricityBillRepo.findAll().stream().filter(bill->bill.getTenant().getFloor()==floor).toList();
+        return  electricityBillRepo.findAll().stream().filter(bill->bill.getId().getTenantId()==floor).toList();
 
     }
     public List<ElectricityBill> getTenantLastNBills(int floor,int n){
@@ -39,7 +39,7 @@ public class DisplayResults {
         if(n> all.size()){
             //todo error handling
         }
-        return  all.stream().filter(bill->bill.getTenant().getFloor()==floor).limit(n).toList();
+        return  all.stream().filter(bill->bill.getId().getTenantId()==floor).limit(n).toList();
 
     }
     public List<ElectricityBill> getLatestBillForAllTenants(){
@@ -48,7 +48,7 @@ public class DisplayResults {
         return allTenants.stream().map(tenant -> getTenantsLatestBill(tenant.getFloor())).toList();
     }
     public ElectricityBill getTenantsLatestBill(int floor){
-        List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getTenant().getFloor() == floor).toList();
+        List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getId().getTenantId() == floor).toList();
         if(electricityBills.isEmpty()){
             //Todo::Handle
             System.out.println("This one empty");

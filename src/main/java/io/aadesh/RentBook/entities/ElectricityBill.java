@@ -50,11 +50,6 @@ public class ElectricityBill {
         this.perRs = perRs;
     }
 
-    @ManyToOne
-    @MapsId("tenantId")
-    @JoinColumn(name = "tenant_id")
-    private Tenant tenant;
-
     public ElectricityBillId getId() {
         return id;
     }
@@ -151,19 +146,11 @@ public class ElectricityBill {
         this.grandTotal = grandTotal;
     }
 
-    public Tenant getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(Tenant tenant) {
-        this.tenant = tenant;
-    }
 
     @Override
     public String toString() {
         return  id.toString() +
-                ", Floor = " + tenant.getFloor() +
-                ", Name = " + tenant.getName() +
+                ", Floor = " + id.getTenantId() +
                 "\nचालु Room Reading = " + currentTotalRoomUnits +
                 ", मागील Room Reading = " + previousTotalRoomUnits +
                 ", Total Units = " + roomUnits +

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <title>Tenants</title>
+</head>
+<body>
+<div class="container mt-5 mb-5" style="width: 60%;">
+    <div th:insert = "nav-bar  :: nav-bar" style="margin-bottom : 20px;" ></div>
+    <div class="card" th:each="tenant : ${tenants}" style="margin-bottom : 20px" th:class="${tenant.active} ? '' : 'opacity-50'" >
+        <div class="card-body">
+            <table>
+                <tr>
+                    <td><h5>Floor :</h5></td>
+                    <td ><h5 th:text="${tenant.floor}" class="card-title" ></h5></td>
+                    <td style="text-align: right">
+                    <td th:if="${tenant.active}" style="padding-left: 20px"><a style="font-size: 0.8rem" class="btn btn-primary" th:href="@{'/deleteTenant/'+${tenant.floor}}">Deactivate</a></td>
+                    </td>
+                </tr>
+                <tr>
+                    <td><h6>Name :</h6></td>
+                    <td><h6 th:text="${tenant.name}">Name :</h6></td>
+                    <td style="padding-left: 20px"><h6>Rent :</h6></td>
+                    <td ><h6 th:text="${tenant.rent}">Rent :</h6></td>
+                </tr>
+            </table>
+            <a th:if="!${tenant.active}" class="btn btn-secondary" th:href="@{'/activateTenant/'+${tenant.floor}}">Activate</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

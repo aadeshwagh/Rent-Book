@@ -11,6 +11,16 @@ public class Tenant {
     private String name;
     private int rent;
 
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public int getFloor() {
         return floor;
     }

@@ -6,36 +6,27 @@ import io.aadesh.RentBook.repos.TenantRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class Calculate {
+public class BillService {
 
     @Autowired
-    private TenantRepo tenantRepo;
+    private TenantService tenantService;
+
     @Autowired
     private ElectricityBillRepo electricityBillRepo;
 
 
     public ElectricityBill createElectricityBill(double currentTotalRoomUnits,double currentTotalBorUnits, int floor, String month, String year, int rsPerUnit){
-        Optional<Tenant> tenant0 = tenantRepo.findById(floor);
-
-        if(tenant0.isEmpty()){
-            //Todo::send to add new tenants
-            System.out.println("Error");
-
-            throw new RuntimeException();
-
-        }
+      Tenant tenant = tenantService.getTenantByFloor(floor);
         if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
             //todo:: Error handling for already existed data
             throw new RuntimeException("bill for that user already exists");
         }
         //tenantRepo.delete(tenant0.get());
-        Tenant tenant = tenant0.get();
-        List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getTenant().getFloor() == floor).toList();
+        List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getId().getTenantId() == floor).toList();
         if(electricityBills.isEmpty()){
             //Todo::Handle no previous data
             throw new RuntimeException();
@@ -49,7 +40,7 @@ public class Calculate {
 
             double totalRoomUnits = currentTotalRoomUnits - previousTotalRoomUnits;
             double totalRoomAmount = totalRoomUnits * rsPerUnit;
-            double roomBorUnits = (currentTotalBorUnits-previousTotalBorUnits)/tenantRepo.findAll().size();
+            double roomBorUnits = (currentTotalBorUnits-previousTotalBorUnits)/tenantService.getAllActiveTenants().size();
             double totalBorAmount = roomBorUnits * rsPerUnit;
 
             int totalCalculatedAmount = (int)(totalBorAmount+totalRoomAmount);
@@ -73,7 +64,6 @@ public class Calculate {
             electricityBill.setTotalBill(totalCalculatedAmount);
             electricityBill.setGrandTotal(totalCalculatedAmount);
 
-            electricityBill.setTenant(tenant);
 
             electricityBillRepo.save(electricityBill);
             return electricityBill;
@@ -81,26 +71,17 @@ public class Calculate {
     }
 
     public void createElectricityBillForFirstTime(double currentTotalRoomUnits, double previousTotalRoomUnits ,double currentTotalBorUnits,double previousTotalBorUnits, int floor, String month, String year, int rsPerUnit){
-        Optional<Tenant> tenant0 = tenantRepo.findById(floor);
-
-        if(tenant0.isEmpty()){
-            //Todo::send to add new tenants
-            System.out.println("Error");
-
-            throw new RuntimeException();
-
-        }
+       Tenant tenant = tenantService.getTenantByFloor(floor);
         if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
             //todo:: Error handling for already existed data
             throw new RuntimeException("bill for that user already exists");
         }
         //tenantRepo.delete(tenant0.get());
-        Tenant tenant = tenant0.get();
 
 
         double totalRoomUnits = currentTotalRoomUnits - previousTotalRoomUnits;
         double totalRoomAmount = totalRoomUnits * rsPerUnit;
-        double roomBorUnits = (currentTotalBorUnits-previousTotalBorUnits)/tenantRepo.findAll().size();
+        double roomBorUnits = (currentTotalBorUnits-previousTotalBorUnits)/tenantService.getAllActiveTenants().size();
         double totalBorAmount = roomBorUnits * rsPerUnit;
 
         int totalCalculatedAmount = (int)(totalBorAmount+totalRoomAmount);
@@ -125,51 +106,10 @@ public class Calculate {
         electricityBill.setTotalBill(totalCalculatedAmount);
         electricityBill.setGrandTotal(totalCalculatedAmount+tenant.getRent());
 
-        electricityBill.setTenant(tenant);
 
         electricityBillRepo.save(electricityBill);
 
 
-    }
-
-    public void addTenant(int rent,String name, int floor){
-        Optional<Tenant> tenant0 = tenantRepo.findById(floor);
-
-        if(tenant0.isPresent()){
-            //Todo::send to add new tenants
-            System.out.println("Error");
-
-            throw new RuntimeException();
-
-        }
-        Tenant tenant = new Tenant();
-
-        tenant.setRent(rent);
-        tenant.setName(name);
-        tenant.setFloor(floor);
-        tenantRepo.save(tenant);
-
-    }
-
-    public void deleteTenant(int floor){
-        Optional<Tenant> tenant0 = tenantRepo.findById(floor);
-
-        if(tenant0.isEmpty()){
-            //Todo::send to add new tenants
-            System.out.println("Not exist");
-
-            throw new RuntimeException();
-
-        }
-        tenantRepo.delete(tenant0.get());
-    }
-
-    public List<Integer> getFloors(){
-        List<Integer> list = tenantRepo.findAll().stream().map(Tenant::getFloor).filter(floor -> floor >1).toList();
-        if(list.isEmpty()){
-            throw new RuntimeException("No tenants");
-        }
-        return list;
     }
 
 
