@@ -1,2 +1,2 @@
 # Introduction
-This is customised solution for keeping track of tenants rent and electricity bill management. Front end is limited. Can add more functionalities if needed.
+This is a customised solution for calculating and keeping track of tenant's rent and electricity bills. Front end is limited. Could add more functionalities if needed.
