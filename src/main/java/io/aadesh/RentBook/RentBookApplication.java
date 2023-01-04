@@ -1,5 +1,6 @@
 package io.aadesh.RentBook;
 
+import io.aadesh.RentBook.entities.ElectricityBillId;
 import io.aadesh.RentBook.services.BillService;
 import io.aadesh.RentBook.services.DisplayResultsService;
 import io.aadesh.RentBook.services.TenantService;
@@ -37,6 +38,7 @@ public class RentBookApplication implements CommandLineRunner {
 
 		//displayResults.getTenantAllBills(2).stream().forEach(System.out::println);
 		//displayResults.getLatestBillForAllTenants().forEach(bill->System.out.println(bill+"\n"));
+		//calculate.deleteBill(new ElectricityBillId(2,"January-2023"));
 
 
 	}

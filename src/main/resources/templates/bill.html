@@ -23,10 +23,6 @@
                         <td>Floor:</td>
                         <td th:text="${bill.id.tenantId}"></td>
                     </tr>
-<!--                    <tr>-->
-<!--                        <td>Name:</td>-->
-<!--                        <td th:text="${bill.tenant.name}"></td>-->
-<!--                    </tr>-->
                     <tr>
                         <td>Current Room Reading:</td>
                         <td th:text="${bill.currentTotalRoomUnits}"></td>
@@ -63,10 +59,12 @@
                         <td><h5>Total Bor Bill :</h5></td>
                         <td ><h5 th:text="${bill.roomBorAmount}" class="card-title" ></h5></td>
                     </tr>
+                    <tr>
+                        <td><a class="btn btn-primary" th:href="@{'/editBillPage/'+${bill.id.billId}+'/'+${bill.id.tenantId}}">Edit</a></td>
+                    </tr>
                 </table>
 
             </div>
-            <a class="btn btn-primary" th:href="@{'/editBill/'+${bill.id}}">Edit</a>
         </div>
     </div>
 </body>
