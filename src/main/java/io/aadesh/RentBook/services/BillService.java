@@ -7,11 +7,49 @@ import io.aadesh.RentBook.repos.ElectricityBillRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.*;
 
 @Service
 public class BillService {
+
+    private Map<String,Integer> months;
+    private Map<Integer,String> monthsN;
+
+    public BillService(){
+       months = Map.ofEntries(
+                Map.entry("January", 1),
+                Map.entry("February", 2),
+                Map.entry("March", 3),
+                Map.entry("April", 4),
+                Map.entry("May", 5),
+                Map.entry("June", 6),
+                Map.entry("July", 7),
+                Map.entry("August", 8),
+                Map.entry("September", 9),
+                Map.entry("October", 10),
+                Map.entry("November", 11),
+                Map.entry("December", 12)
+        );
+        monthsN = Map.ofEntries(
+                Map.entry(1, "January"),
+                Map.entry(2, "February"),
+                Map.entry(3, "March"),
+                Map.entry(4, "April"),
+                Map.entry(5, "May"),
+                Map.entry(6, "June"),
+                Map.entry(7, "July"),
+                Map.entry(8, "August"),
+                Map.entry(9, "September"),
+                Map.entry(10, "October"),
+                Map.entry(11, "November"),
+                Map.entry(12, "December")
+        );
+
+    }
 
     @Autowired
     private TenantService tenantService;
@@ -25,12 +63,10 @@ public class BillService {
         if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
             throw new BillAlreadyExistsException();
         }
-        List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getId().getTenantId() == floor).toList();
-        if(electricityBills.isEmpty()){
-            
-            throw new RuntimeException("No previous bills found for tenant");
-        }
-        ElectricityBill previousElectricityBill = electricityBills.get(0);
+        //List<ElectricityBill> electricityBills = electricityBillRepo.findAll().stream().filter(bill -> bill.getId().getTenantId() == floor).toList();
+        ElectricityBillId previousElectricityBillId = getPreviousMonthYearId(month,year,floor);
+
+        ElectricityBill previousElectricityBill = getBillById(previousElectricityBillId);
 
 
 
@@ -71,7 +107,18 @@ public class BillService {
 
     }
 
-    public void createElectricityBillForFirstTime(double currentTotalRoomUnits, double previousTotalRoomUnits ,double currentTotalBorUnits,double previousTotalBorUnits, int floor, String month, String year, int rsPerUnit) throws BillAlreadyExistsException {
+    private ElectricityBillId getPreviousMonthYearId(String month, String year, int floor) {
+
+        // Convert month name to LocalDate object
+        int prevYear = months.get(month) == 1 ? Integer.parseInt(year) - 1 : Integer.parseInt(year);
+        int prevMonth =  months.get(month) == 1 ? 12 :  months.get(month) - 1;
+
+
+        return new ElectricityBillId(floor,monthsN.get(prevMonth)+"-"+prevYear);
+    }
+
+
+    public void createElectricityBillForFirstTime(double currentTotalRoomUnits, double previousTotalRoomUnits ,double currentTotalBorUnits,double previousTotalBorUnits, int floor, String month, String year, int rsPerUnit)  {
        Tenant tenant = tenantService.getTenantByFloor(floor);
         if(electricityBillRepo.findById(new ElectricityBillId(floor,month+"-"+year)).isPresent()){
             
@@ -114,7 +161,7 @@ public class BillService {
     }
 
 
-    public void deleteBill(ElectricityBillId electricityBillId) throws BillNotFoundException {
+    public void deleteBill(ElectricityBillId electricityBillId){
         Optional<ElectricityBill> bill0 = electricityBillRepo.findById(electricityBillId);
         if(bill0.isEmpty()){
             throw new BillNotFoundException();
@@ -123,7 +170,7 @@ public class BillService {
         electricityBillRepo.delete(bill0.get());
     }
 
-    public ElectricityBill getBillById(ElectricityBillId electricityBillId) throws BillNotFoundException {
+    public ElectricityBill getBillById(ElectricityBillId electricityBillId){
         Optional<ElectricityBill> bill0 = electricityBillRepo.findById(electricityBillId);
         if(bill0.isEmpty()){
             throw new BillNotFoundException();
